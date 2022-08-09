@@ -23,15 +23,17 @@
 #include "matPrint.h"
 #include "filter.h"
 #include "config.h"
+#include "kernels.h"
+#include "matrices.h"
 
 #ifndef MAX
 #define MAX(a,b) (a > b ? a : b)
 #endif
 
 
-int main(int argc, char **argv)
-{
-	int devID;
+int main(int argc, char **argv){
+
+	int devID;	
 	cudaDeviceProp props;
 
 	// This will pick the best possible CUDA capable device
@@ -52,17 +54,10 @@ int main(int argc, char **argv)
 	int *h_dstmat =(int*) malloc(sizeof(int)*DIM);
 	int* d_srcmat;
 	int* d_dstmat;
-
-	for(int i =0 ; i<ROWS;i++){
-		for(int j=0 ; j<COLS;j++){
-		*(h_srcmat + i*COLS + j) = i*COLS + j;
-		}
-	}
+	horizontal_4row_stripes(h_srcmat);
 	printf("src matrix\n");
 	matPrint(h_srcmat,ROWS,COLS);
-	int h_f[F_DIM]={0};
-	for (int i=0;i<F_DIM;i++)h_f[i]=1;
-	//matPrint(h_f,F_COLS,F_COLS);
+	int *h_f=ker_ridge4;
 	cudaMalloc((void**)&d_srcmat,sizeof(int)*DIM);
 	cudaMalloc((void**)&d_dstmat,sizeof(int)*DIM);
 	
